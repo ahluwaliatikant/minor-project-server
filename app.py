@@ -40,6 +40,31 @@ def weather_fetch(city_name):
         return None
 
 
+# CROP Prediction from sensor-data
+
+@ app.route('/crop-predict-sensor', methods=['GET'])
+def crop_prediction_sensor():
+    if request.method == 'GET':
+        N = 120
+        P = 80
+        K = 50
+        ph = 7
+        sensor_data_url = "https://cropsense-sensor.onrender.com/"
+        response = requests.get(sensor_data_url)
+        json_response = response.json()
+
+        temperature = json_response["soilTemperature"]
+        humidity = json_response["moisture"]
+        rainfall = json_response["weatherHumidity"]
+
+        data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+        print(data)
+        my_prediction = crop_recommendation_model.predict(data)
+        final_prediction = my_prediction[0]
+
+        crop_prediction_data_to_be_returned = {'prediction': final_prediction}
+        return jsonify(crop_prediction_data_to_be_returned)
+
 # Crop Prediction API
 
 @ app.route('/crop-predict', methods=['GET'])
